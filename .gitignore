@@ -1,5 +1,9 @@
+# terraform specific
 secrets.tfvars
 .terraform/
 terraform.tfplan
 *.tfstate
 *.tfstate.*
+
+# application specific
+application/venv
