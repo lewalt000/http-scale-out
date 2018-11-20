@@ -90,10 +90,10 @@ After installing with ```go get -u github.com/rakyll/hey```, some load with incr
 The result of this test showed that both new containers and ECS nodes were added as neeed to maintain a stable CPU utilization across the cluster.
 
 This graph shows CPU and memory utilization at the top and Request Count at the bottom. The inflection points in the graph where CPU load decreases are when new instances are brought online:
-(https://i.imgur.com/4Jpvr2n.png)
+![perf_graph](https://i.imgur.com/4Jpvr2n.png)
 
 Accordingly the ECS logs show the new container instances being brought up in response to the increased load:
-(https://i.imgur.com/CJ9q4Pg.png)
+![event_log](https://i.imgur.com/CJ9q4Pg.png)
 
 ## Future Work
 Here are areas where the project could be further refined:
