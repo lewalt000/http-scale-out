@@ -27,7 +27,7 @@ To use ECS to run an auto-scaling http service, additional AWS resources are als
 ## Automated ECS Provisioning with Terraform
 Setting up the described ECS resources would be a lot of work manually, so thankfully it can be automated using the open source Terraform tool (https://www.terraform.io/).
 
-To use the included Terraform configurations, follow these steps:
+To use the included Terraform configurations, follow these steps in the ```terraform/``` directory:
   1. Install Terraform (https://www.terraform.io/intro/getting-started/install.html)
   2. Define an AWS access and secret key to use in ```terraform/secrets.tfvars```:
 ```
@@ -37,7 +37,6 @@ secret_key = "baaaaaaar"
 ```
   3. Initialize Terraform
 ```
-$ cd terraform
 $ terraform init -var-file="secrets.tfvars"
 $ Terraform has been successfully initialized!
 ```
@@ -45,10 +44,29 @@ $ Terraform has been successfully initialized!
   5. Provision the resources with Terraform: ```terraform apply -var-file="secrets.tfvars"```
   6. You should now have a fully provisioned system for deploying containers in ECS!
 
-## Future Work
+## HTTP Server Application
+To test the ECS infrastructure setup, a sample HTTP Server Application is included, along with scripts to build it as a docker container and deploy to ECS. It is a nginx-uwsgi-flask based HTTP server that serves a json response from the /api endpoint. The response is a json encoded dictionary of the form {index_number: random(ascii letter)}. The values are pseudo-randomly generated for each request using the ```random``` module (https://docs.python.org/2/library/random.html). The base docker image itself is adopted from this excellent docker hub project by ```tiangolo```: https://hub.docker.com/r/tiangolo/uwsgi-nginx-flask/
 
+To build the server locally, follow these steps in the ```application/``` directory:
+  1. Setup python virtualenv with:
+```
+$ ./scripts/dev_bootstrap.sh
+#################
+To run server locally for development:
+source venv/bin/activate
+python app/main.py
+```
+  2. Activate the virtualenv: ```source venv/bin/activate```
+  3. Install pip requirements: ```pip install -r requirements.txt```
+  4. Run server locally: ```python app/main.py```
+  5. The server should now be running locally at http://localhost:8080
+
+Changes to the application can be made in ```app/main.py```.
+
+
+## Future Work
 Here are areas where the project could be further refined:
 
+* Use a full featured deployment system and build pipeline. For easy integration with ECS, Amazon Code would be a good place to start (https://aws.amazon.com/codepipeline/)
 * Modularize Terraform config's (https://www.terraform.io/docs/modules/index.html)
 * Re-factor tunable Terraform settings out into variables (https://www.terraform.io/intro/getting-started/variables.html)
-* Use a full featured deployment system and build pipeline. For easy integration with ECS, Amazon Code would be a good place to start (https://aws.amazon.com/codepipeline/)
