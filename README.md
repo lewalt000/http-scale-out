@@ -72,9 +72,28 @@ In both cases, "Target Tracking Approach" is used to define the auto-scaling pol
   * For "Service Auto Scaling": https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-autoscaling-targettracking.html
   * For "EC2 Auto Scaling": https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-target-tracking.html
 
-For this test setup for following thresholds are used:
+For this test setup the following thresholds are used:
   * service auto scale target: 80%
   * ECS cluster node auto scale target: 30%
+
+## Load Testing
+To test the auto-scaling feature, a load testing tool can be used to generate requests to the HTTP server. https://github.com/denji/awesome-http-benchmark has a great overview of the many tools available. For a quick test, the open source ```hey`` utility is a great option: https://github.com/rakyll/hey/blob/master/README.md.
+
+After installing with ```go get -u github.com/rakyll/hey```, some load with increasing traffic can be generated to the server API endpoint with:
+```
+~/go/bin/hey -q 5 -z 10m http://ecs-lb-2036911475.us-east-2.elb.amazonaws.com/api
+~/go/bin/hey -q 10 -z 10m http://ecs-lb-2036911475.us-east-2.elb.amazonaws.com/api
+~/go/bin/hey -q 15 -z 10m http://ecs-lb-2036911475.us-east-2.elb.amazonaws.com/api
+~/go/bin/hey -q 20 -z 10m http://ecs-lb-2036911475.us-east-2.elb.amazonaws.com/api
+```
+
+The result of this test showed that both new containers and ECS nodes were added as neeed to maintain a stable CPU utilization across the cluster.
+
+This graph shows CPU and memory utilization at the top and Request Count at the bottom. The inflection points in the graph where CPU load decreases are when new instances are brought online:
+(https://i.imgur.com/4Jpvr2n.png)
+
+Accordingly the ECS logs show the new container instances being brought up in response to the increased load:
+(https://i.imgur.com/CJ9q4Pg.png)
 
 ## Future Work
 Here are areas where the project could be further refined:
