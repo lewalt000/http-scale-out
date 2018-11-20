@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
-  return "Hello world! Try /api to request a sample json payload"
+  return "Hello world!!! Try /api to request a sample json payload"
 
 @app.route("/api")
 def api():

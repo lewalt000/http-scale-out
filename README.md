@@ -6,7 +6,8 @@ The http service provided this project can be inspected at: http://ecs-lb-203691
 
 ## Prerequisites
 To use this project you will need:
-  * An AWS account with programmatic access for use by Terraform
+  * An AWS account with programmatic access for use by Terraform (https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html)
+  * AWS CLI installed (https://docs.aws.amazon.com/cli/latest/userguide/installing.html)
   * Terraform installed (https://www.terraform.io/intro/getting-started/install.html)
   * Docker installed (https://docs.docker.com/install/)
 
@@ -48,20 +49,34 @@ $ Terraform has been successfully initialized!
 To test the ECS infrastructure setup, a sample HTTP Server Application is included along with scripts to build it as a docker container and deploy to ECS. It is a nginx-uwsgi-flask based HTTP server that serves a json response from the /api endpoint. The response is a json encoded dictionary of the form {index_number: random(ascii letter)}. The values are pseudo-randomly generated for each request using the ```random``` module (https://docs.python.org/2/library/random.html). The base docker image itself is adopted from this excellent docker hub project by ```tiangolo```: https://hub.docker.com/r/tiangolo/uwsgi-nginx-flask/
 
 To build the server locally, follow these steps in the ```application/``` directory:
-  1. Setup python virtualenv with:
-```
-$ ./scripts/dev_bootstrap.sh
-#################
-To run server locally for development:
-source venv/bin/activate
-python app/main.py
-```
+  1. Setup python virtualenv with: ```./scripts/dev_bootstrap.sh```
   2. Activate the virtualenv: ```source venv/bin/activate```
   3. Install pip requirements: ```pip install -r requirements.txt```
   4. Run server locally: ```python app/main.py```
   5. The server should now be running locally at http://localhost:8080
 
 Changes to the application can be made in ```app/main.py```.
+
+## Deploying New HTTP Server Versions
+
+To deploy a new version of the HTTP server, first complete a few pre-requesite steps:
+  1. Make sure the AWS CLI is installed (https://docs.aws.amazon.com/cli/latest/userguide/installing.html)
+  2. Configure the AWS CLI: `aws configure````aws configure```
+  3. Authenticate Docker to push to AWS ECR: ```$(aws ecr get-login --no-include-email --region us-east-2)```
+    * Note: on Ubunto 18.04 LTS, these packages were needed for this to work: ```sudo apt install gnupg2 pass```
+  4. Get the URI of the ECR Repository that was provisioned for your AWS account:
+```
+aws ecr describe-repositories --repository-names "http-api" --query 'repositories'[0].{Uri:repositoryUri}
+$ aws ecr describe-repositories --repository-names "http-api" --query 'repositories'[0].{Uri:repositoryUri}
+{
+    "Uri": "803293036930.dkr.ecr.us-east-2.amazonaws.com/http-api"
+}
+```
+  5. Update ```$ECR_URI``` in ```application/scripts/deploy.sh``` with the Uri for your account
+  6. Run ```application/scripts/deploy.sh``` to deploy the new version!
+
+Note: this is just an example script to automate a test deployment, but is not suitable for production purposes. For production, a more robust deployment solution should be used. This would either be a more robust tool developed using the AWS SDK, or integrating with a cloud service like AWS CodePipeline.
+  
 
 ## Auto-Scale Settings
 Some notes on the auto-scale setup. First of all, it's important to note that TWO pieces of the infrastructure need to be configured for auto-scale:
@@ -101,7 +116,7 @@ After the load test was completed, the ECS event logs show the container instanc
 ![event_log](https://i.imgur.com/Bo8Cs8i.png)
 
 ## API Demonstration
-For good measure, here is an example result of an API request. Note, the key values are randomly generated and will be different for each request.
+For good measure, here is an example response of an API request. Note, the key values are randomly generated and will be different for each request.
 ```
 $ curl http://ecs-lb-2036911475.us-east-2.elb.amazonaws.com/api
 {"0":"e","1":"d","2":"f","3":"W","4":"s","5":"V","6":"H","7":"C","8":"o","9":"J","10":"y","11":"Y","12":"r","13":"s","14":"S","15":"b","16":"q","17":"M","18":"K","19":"a","20":"I","21":"p","22":"l","23":"B","24":"L","25":"Z","26":"F","27":"L","28":"y","29":"c","30":"x","31":"m","32":"F","33":"l","34":"E","35":"u","36":"M","37":"Z","38":"O","39":"y","40":"w","41":"H","42":"l","43":"X","44":"f","45":"h","46":"B","47":"E","48":"m","49":"Y","50":"k","51":"r"}
