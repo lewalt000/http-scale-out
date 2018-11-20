@@ -32,14 +32,13 @@ echo ECS_CLUSTER=container-cluster >> /etc/ecs/ecs.config
 resource "aws_autoscaling_policy" "ecs-autoscale" {
   name  = "ecs-scale-up"
   policy_type = "TargetTrackingScaling"
-  adjustment_type = "ChangeInCapacity"
   autoscaling_group_name = "${aws_autoscaling_group.ecs-autoscale.name}"
 
   target_tracking_configuration {
     predefined_metric_specification {
       predefined_metric_type = "ASGAverageCPUUtilization"
     }
-    target_value = 60.0
+    target_value = 30.0
   }
 }
 
@@ -47,7 +46,7 @@ resource "aws_autoscaling_group" "ecs-autoscale" {
   name                  = "ecs_autoscale_group"
   launch_configuration  = "${aws_launch_configuration.ecs-launch-config.name}"
   availability_zones    = ["us-east-2a", "us-east-2b", "us-east-2c"]
-  min_size              = 3
+  min_size              = 1
   max_size              = 5
 
   lifecycle {
