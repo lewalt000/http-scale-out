@@ -45,7 +45,7 @@ $ Terraform has been successfully initialized!
   6. You should now have a fully provisioned system for deploying containers in ECS!
 
 ## HTTP Server Application
-To test the ECS infrastructure setup, a sample HTTP Server Application is included, along with scripts to build it as a docker container and deploy to ECS. It is a nginx-uwsgi-flask based HTTP server that serves a json response from the /api endpoint. The response is a json encoded dictionary of the form {index_number: random(ascii letter)}. The values are pseudo-randomly generated for each request using the ```random``` module (https://docs.python.org/2/library/random.html). The base docker image itself is adopted from this excellent docker hub project by ```tiangolo```: https://hub.docker.com/r/tiangolo/uwsgi-nginx-flask/
+To test the ECS infrastructure setup, a sample HTTP Server Application is included along with scripts to build it as a docker container and deploy to ECS. It is a nginx-uwsgi-flask based HTTP server that serves a json response from the /api endpoint. The response is a json encoded dictionary of the form {index_number: random(ascii letter)}. The values are pseudo-randomly generated for each request using the ```random``` module (https://docs.python.org/2/library/random.html). The base docker image itself is adopted from this excellent docker hub project by ```tiangolo```: https://hub.docker.com/r/tiangolo/uwsgi-nginx-flask/
 
 To build the server locally, follow these steps in the ```application/``` directory:
   1. Setup python virtualenv with:
@@ -63,6 +63,18 @@ python app/main.py
 
 Changes to the application can be made in ```app/main.py```.
 
+## Auto-Scale Settings
+Some notes on the auto-scale setup. First of all, it's important to note that TWO pieces of the infrastructure need to be configured for auto-scale:
+  1. The number of http server docker containers being run on the ECS cluster. AWS refers to this as "Service Auto Scaling" (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-auto-scaling.html)
+  2. The number of nodes in the ECS cluster. If too many containers are deployed in the cluster from use case 1), there won't be enough free capacity to deploy more. This is done with the same type of Auto-Scale groups used for EC2 instances, using a launch template that configures new EC2 instances to join the ECS cluster automatically. (https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html)
+
+In both cases, "Target Tracking Approach" is used to define the auto-scaling policy. With Target Tracking, a target CPU utilization is defined and AWS adds or remove instances or containers to try and maintain this target. Target Tracking automatically creates and manages the required CloudWatch alarms to engage the auto-scaling which makes it easy to setup with minimal configuration. The documentation about this approach is at:
+  * For "Service Auto Scaling": https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-autoscaling-targettracking.html
+  * For "EC2 Auto Scaling": https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-target-tracking.html
+
+For this test setup for following thresholds are used:
+  * service auto scale target: 80%
+  * ECS cluster node auto scale target: 30%
 
 ## Future Work
 Here are areas where the project could be further refined:
