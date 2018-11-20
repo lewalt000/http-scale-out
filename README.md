@@ -93,8 +93,12 @@ This graph shows CPU and memory utilization at the top and Request Count at the 
 ![perf_graph](https://i.imgur.com/4Jpvr2n.png)
 
 
-Accordingly the ECS logs show the new container instances being brought up in response to the increased load:
+Accordingly the ECS event logs show the new container instances being brought up in response to the increased load:
 ![event_log](https://i.imgur.com/CJ9q4Pg.png)
+
+
+After the load test was completed, the ECS event logs show the container instances being reduced in repsonse to the decreased load:
+![event_log](https://i.imgur.com/Bo8Cs8i.png)
 
 ## API Demonstration
 For good measure, here is an example result of an API request. Note, the key values are randomly generated and will be different for each request.
