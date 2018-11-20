@@ -92,8 +92,16 @@ The result of this test showed that both new containers and ECS nodes were added
 This graph shows CPU and memory utilization at the top and Request Count at the bottom. The inflection points in the graph where CPU load decreases are when new instances are brought online:
 ![perf_graph](https://i.imgur.com/4Jpvr2n.png)
 
+
 Accordingly the ECS logs show the new container instances being brought up in response to the increased load:
 ![event_log](https://i.imgur.com/CJ9q4Pg.png)
+
+## API Demonstration
+For good measure, here is an example result of an API request. Note, the key values are randomly generated and will be different for each request.
+```
+$ curl http://ecs-lb-2036911475.us-east-2.elb.amazonaws.com/api
+{"0":"e","1":"d","2":"f","3":"W","4":"s","5":"V","6":"H","7":"C","8":"o","9":"J","10":"y","11":"Y","12":"r","13":"s","14":"S","15":"b","16":"q","17":"M","18":"K","19":"a","20":"I","21":"p","22":"l","23":"B","24":"L","25":"Z","26":"F","27":"L","28":"y","29":"c","30":"x","31":"m","32":"F","33":"l","34":"E","35":"u","36":"M","37":"Z","38":"O","39":"y","40":"w","41":"H","42":"l","43":"X","44":"f","45":"h","46":"B","47":"E","48":"m","49":"Y","50":"k","51":"r"}
+```
 
 ## Future Work
 Here are areas where the project could be further refined:
