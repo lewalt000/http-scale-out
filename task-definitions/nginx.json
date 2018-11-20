@@ -1,8 +1,8 @@
 [
   {
     "name": "nginx",
-    "image": "nginx",
-    "cpu": 128,
+    "image": "803293036930.dkr.ecr.us-east-2.amazonaws.com/http-api:latest",
+    "cpu": 256,
     "memory": 256,
     "essential": true,
     "portMappings": [

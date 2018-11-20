@@ -47,7 +47,7 @@ resource "aws_autoscaling_group" "ecs-autoscale" {
   name                  = "ecs_autoscale_group"
   launch_configuration  = "${aws_launch_configuration.ecs-launch-config.name}"
   availability_zones    = ["us-east-2a", "us-east-2b", "us-east-2c"]
-  min_size              = 1
+  min_size              = 3
   max_size              = 5
 
   lifecycle {
