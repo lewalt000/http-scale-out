@@ -55,7 +55,7 @@ To build the server locally, follow these steps in the ```application/``` direct
   4. Run server locally: ```python app/main.py```
   5. The server should now be running locally at http://localhost:8080
 
-Changes to the application can be made in ```app/main.py```.
+Changes to the application can be made in ```application/app/main.py```.
 
 ## Deploying New HTTP Server Versions
 
@@ -73,7 +73,15 @@ $ aws ecr describe-repositories --repository-names "http-api" --query 'repositor
 }
 ```
   5. Update ```$ECR_URI``` in ```application/scripts/deploy.sh``` with the Uri for your account
-  6. Run ```application/scripts/deploy.sh``` to deploy the new version!
+
+With the pre-req's setup, new version of the latest changes in ```app/main.py``` can be deployed with:
+  * Run ```application/scripts/deploy.sh```
+
+The deployment process works by building a new version of the docker image and pushing it to the AWS Elastic Container Registry. It then instructs ECS to force a retry of the current task definition. This causes ECS to download the latest version availabile in the ECR repo and deploy new instances to the cluster. It automatically follows a blue-green deployment strategy by following these steps:
+  1. deploy new container instances
+  2. check that new container instances are healthy
+  3. route traffic to the new instances
+  4. delete the old container instances
 
 Note: this is just an example script to automate a test deployment, but is not suitable for production purposes. For production, a more robust deployment solution should be used. This would either be a more robust tool developed using the AWS SDK, or integrating with a cloud service like AWS CodePipeline.
   
